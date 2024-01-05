@@ -13,7 +13,7 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCK9Ir6KJuCJe9ho1BaFNNR6hbgn8oYrL8",
+  apiKey: "",
   authDomain: "test-project-eaa57.firebaseapp.com",
   databaseURL:
     "https://test-project-eaa57-default-rtdb.europe-west1.firebasedatabase.app",
