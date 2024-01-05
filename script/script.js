@@ -1,3 +1,32 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  push,
+  child,
+  get,
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCK9Ir6KJuCJe9ho1BaFNNR6hbgn8oYrL8",
+  authDomain: "test-project-eaa57.firebaseapp.com",
+  databaseURL:
+    "https://test-project-eaa57-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "test-project-eaa57",
+  storageBucket: "test-project-eaa57.appspot.com",
+  messagingSenderId: "341660861877",
+  appId: "1:341660861877:web:887cb303ae3a13816a05fc",
+  measurementId: "G-4L85ZP3RWT",
+};
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const dbRef = ref(getDatabase(app));
+
 document.addEventListener("DOMContentLoaded", function () {
   const btnOpenModal = document.querySelector("#btnOpenModal");
   const modalBlock = document.querySelector("#modalBlock");
@@ -8,91 +37,48 @@ document.addEventListener("DOMContentLoaded", function () {
   const nextButton = document.querySelector("#next");
   const sendButton = document.querySelector("#send");
 
-  const questions = [
-    {
-      question: "Какого цвета бургер?",
-      answers: [
-        {
-          title: "Стандарт",
-          url: "./image/burger.png",
-        },
-        {
-          title: "Черный",
-          url: "./image/burgerBlack.png",
-        },
-      ],
-      type: "radio",
-    },
-    {
-      question: "Из какого мяса котлета?",
-      answers: [
-        {
-          title: "Курица",
-          url: "./image/chickenMeat.png",
-        },
-        {
-          title: "Говядина",
-          url: "./image/beefMeat.png",
-        },
-        {
-          title: "Свинина",
-          url: "./image/porkMeat.png",
-        },
-      ],
-      type: "radio",
-    },
-    {
-      question: "Дополнительные ингредиенты?",
-      answers: [
-        {
-          title: "Помидор",
-          url: "./image/tomato.png",
-        },
-        {
-          title: "Огурец",
-          url: "./image/cucumber.png",
-        },
-        {
-          title: "Салат",
-          url: "./image/salad.png",
-        },
-        {
-          title: "Лук",
-          url: "./image/onion.png",
-        },
-      ],
-      type: "checkbox",
-    },
-    {
-      question: "Добавить соус?",
-      answers: [
-        {
-          title: "Чесночный",
-          url: "./image/sauce1.png",
-        },
-        {
-          title: "Томатный",
-          url: "./image/sauce2.png",
-        },
-        {
-          title: "Горчичный",
-          url: "./image/sauce3.png",
-        },
-      ],
-      type: "radio",
-    },
-  ];
+  // Initialize Firebase
+
+  function getData() {
+    formAnswers.textContent = "LOAD";
+    nextButton.classList.add("d-none");
+    prevButton.classList.add("d-none");
+
+    get(child(dbRef, "questions"))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          playTest(snapshot.val());
+          nextButton.classList.remove("d-none");
+        } else {
+          formAnswers.textContent = "Ошибка загрузки данных";
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    // fetch("/questions.json").then((res) =>
+    //   res
+    //     .json()
+    //     .then((data) => playTest(data.questions))
+    //     .catch((err) => {
+    //       formAnswers.textContent = "Ошибка загрузки данных";
+    //       console.error(err);
+    //     })
+    // );
+  }
 
   btnOpenModal.addEventListener("click", () => {
     modalBlock.classList.add("d-block");
-    playTest();
+
+    getData();
   });
 
   closeModal.addEventListener("click", () => {
     modalBlock.classList.remove("d-block");
   });
 
-  const playTest = () => {
+  const playTest = (questions) => {
     let numberQuestion = 0;
     let finalAnswers = [];
 
@@ -205,6 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {
       checkAnswer();
       numberQuestion++;
       renderQuestions(numberQuestion);
+      push(child(dbRef, "orders"), finalAnswers);
       console.log(finalAnswers);
     };
   };
